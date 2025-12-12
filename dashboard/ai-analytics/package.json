@@ -37,7 +37,7 @@
     "jose": "^6.0.10",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.482.0",
-    "next": "15.2.1",
+    "next": "15.2.8",
     "ogl": "^1.0.11",
     "posthog-js": "^1.234.10",
     "posthog-node": "^4.11.2",
