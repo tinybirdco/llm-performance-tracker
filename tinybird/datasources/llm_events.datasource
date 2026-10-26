@@ -9,7 +9,7 @@ SCHEMA >
     `environment` String `json:$.proxy_metadata.environment` DEFAULT '',
     `user` String `json:$.user` DEFAULT 'unknown',
     `chat_id` String `json:$.proxy_metadata.chat_id` DEFAULT '',
-    `message_id` String `json:$.message_id`,
+    `message_id` String `json:$.message_id` DEFAULT '',
     `model` LowCardinality(String) `json:$.model` DEFAULT 'unknown',
     `prompt_tokens` UInt16 `json:$.response.usage.prompt_tokens` DEFAULT 0,
     `completion_tokens` UInt16 `json:$.response.usage.completion_tokens` DEFAULT 0,
