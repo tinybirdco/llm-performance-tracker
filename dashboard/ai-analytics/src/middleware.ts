@@ -69,6 +69,11 @@ export default clerkMiddleware(async (auth, request) => {
     return responseWithoutJwt()
   }
 
+  // Single-tenant mode has no secret to sign a JWT with: everyone uses the read token
+  if (!isMultiTenant) {
+    return responseWithoutJwt()
+  }
+
   try {
     const orgName = orgPermissions?.[0]?.split(':').pop() || ''
 
