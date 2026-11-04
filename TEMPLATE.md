@@ -44,6 +44,10 @@ tb --cloud token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 open https://llm-tracker.tinybird.live\?token\=$TINYBIRD_TOKEN
 ```
 
+## Log the app's own AI calls
+
+The dashboard's AI features log their LLM calls to `llm_events` when `TINYBIRD_EVENTS_TOKEN` is set. Use the `llm_events_append` token (append-only on `llm_events`), never the admin token. If it's unset, those calls aren't logged.
+
 ## Local development, multi-tenancy, customization and more 
 
 See [README.md](https://github.com/tinybirdco/llm-performance-tracker?tab=readme-ov-file#build-and-deploy-your-own-llm-tracker)

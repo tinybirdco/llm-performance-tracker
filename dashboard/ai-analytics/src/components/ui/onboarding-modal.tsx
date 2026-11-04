@@ -103,7 +103,7 @@ response = await acompletion(
     snippet: `const wrappedOpenAI = wrapModelWithTinybird(
   openai('gpt-3.5-turbo'),
   process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
-  process.env.TINYBIRD_JWT_SECRET!,
+  process.env.TINYBIRD_EVENTS_TOKEN,
   {
     event: 'search_filter',
     environment: process.env.NODE_ENV,

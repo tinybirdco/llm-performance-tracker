@@ -93,6 +93,9 @@ Edit the .env file with your Tinybird API key and other configuration.
 NEXT_PUBLIC_TINYBIRD_API_URL=http://localhost:7181
 # read_pipes token
 NEXT_PUBLIC_TINYBIRD_API_KEY=
+# optional: llm_events_append token (append-only on llm_events) to log the app's own AI calls.
+# If unset, those calls are not logged. Never use the admin token here.
+TINYBIRD_EVENTS_TOKEN=
 ```
 
 Start the Next.js application:
@@ -136,7 +139,7 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 ```
 
-The [middleware](https://github.com/tinybirdco/ai-analytics-template/blob/main/dashboard/ai-analytics/src/middleware.ts) will get the `org:name` permission from the Clerk user and use it to create a Tinybird JWT token with the `organization` dimension fixed to that value. Read more about Tinybird JWT tokens [here](https://www.tinybird.co/docs/forward/get-started/authentication#json-web-tokens-jwts).
+The [middleware](https://github.com/tinybirdco/ai-analytics-template/blob/main/dashboard/ai-analytics/src/middleware.ts) will get the `org:name` permission from the Clerk user and use it to create a Tinybird JWT token with the `organization` dimension fixed to that value. When `TINYBIRD_JWT_SECRET` is set, logged-out users and users without an organization get no Tinybird token and see an empty dashboard until they sign in with an organization. Read more about Tinybird JWT tokens [here](https://www.tinybird.co/docs/forward/get-started/authentication#json-web-tokens-jwts).
 
 ## Mock Data
 

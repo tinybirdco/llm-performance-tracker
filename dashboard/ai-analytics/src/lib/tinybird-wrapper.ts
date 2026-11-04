@@ -13,9 +13,12 @@ type TinybirdConfig = {
 export function wrapModelWithTinybird(
   model: LanguageModelV1,
   tinybirdApiUrl: string,
-  tinybirdToken: string,
+  tinybirdToken: string | undefined,
   config: TinybirdConfig = {}
 ) {
+  // No append token configured: skip logging instead of falling back to another token
+  if (!tinybirdToken) return model;
+
   const originalDoGenerate = model.doGenerate;
   const originalDoStream = model.doStream;
 

@@ -1,3 +1,4 @@
+TOKEN "llm_events_append" APPEND
 
 DESCRIPTION >
     Store LLM events with usage metrics, costs, and metadata
