@@ -6,6 +6,8 @@ import type { FeatureExtractionPipeline } from '@xenova/transformers/types/pipel
 // Cache the model to avoid reloading it for every request
 let embeddingPipeline: FeatureExtractionPipeline | null = null;
 
+const MAX_TEXT_LENGTH = 1000;
+
 async function getEmbeddingModel() {
   if (!embeddingPipeline) {
     embeddingPipeline = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2') as FeatureExtractionPipeline;
@@ -23,7 +25,14 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    
+
+    if (text.length > MAX_TEXT_LENGTH) {
+      return NextResponse.json(
+        { error: `Invalid input: text must be at most ${MAX_TEXT_LENGTH} characters` },
+        { status: 400 }
+      );
+    }
+
     // Get the model
     const model = await getEmbeddingModel();
     
