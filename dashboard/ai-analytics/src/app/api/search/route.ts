@@ -2,14 +2,23 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { generateRandomChatId, hashApiKeyUser, wrapModelWithTinybird } from '@/lib/tinybird-wrapper';
-import { fetchAvailableDimensions } from '@/lib/dimensions';
+import { fetchAvailableDimensions, isAllowedTinybirdApiUrl } from '@/lib/dimensions';
 
+const MAX_PROMPT_LENGTH = 1000;
 
 export async function POST(req: Request) {
   const { prompt, apiKey } = await req.json();
   const token = req.headers.get('x-custom-tinybird-token');
   const apiUrl = req.headers.get('x-custom-tinybird-api-url');
-  
+
+  if (apiUrl && !isAllowedTinybirdApiUrl(apiUrl)) {
+    return Response.json({ error: 'Invalid Tinybird API URL' }, { status: 400 });
+  }
+
+  if (typeof prompt !== 'string' || prompt.length > MAX_PROMPT_LENGTH) {
+    return Response.json({ error: `Prompt must be a string of at most ${MAX_PROMPT_LENGTH} characters` }, { status: 400 });
+  }
+
   if (!apiKey) {
     return Response.json({ error: 'OpenAI API key is required' }, { status: 400 });
   }
@@ -39,7 +48,7 @@ export async function POST(req: Request) {
     const wrappedOpenAI = wrapModelWithTinybird(
       openai('gpt-3.5-turbo'),
       process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
-      process.env.TINYBIRD_JWT_SECRET!,
+      process.env.TINYBIRD_EVENTS_TOKEN,
       {
         event: 'search_filter',
         environment: process.env.NODE_ENV,

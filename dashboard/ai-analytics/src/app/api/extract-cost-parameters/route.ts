@@ -3,9 +3,11 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
-import { fetchAvailableDimensions } from '@/lib/dimensions';
+import { fetchAvailableDimensions, isAllowedTinybirdApiUrl } from '@/lib/dimensions';
 import { extractDatesFromQuery } from '@/lib/dateUtils';
 import { generateRandomChatId, hashApiKeyUser, wrapModelWithTinybird } from '@/lib/tinybird-wrapper';
+
+const MAX_QUERY_LENGTH = 1000;
 
 // Update the POST function to properly map meta with data
 export async function POST(req: Request) {
@@ -13,9 +15,17 @@ export async function POST(req: Request) {
     const { query, apiKey } = await req.json();
     const token = req.headers.get('x-custom-tinybird-token');
     const apiUrl = req.headers.get('x-custom-tinybird-api-url');
-    
+
+    if (apiUrl && !isAllowedTinybirdApiUrl(apiUrl)) {
+      return NextResponse.json({ error: 'Invalid Tinybird API URL' }, { status: 400 });
+    }
+
     if (!query) {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 });
+    }
+
+    if (typeof query !== 'string' || query.length > MAX_QUERY_LENGTH) {
+      return NextResponse.json({ error: `Query must be a string of at most ${MAX_QUERY_LENGTH} characters` }, { status: 400 });
     }
     
     if (!apiKey) {
@@ -87,7 +97,7 @@ export async function POST(req: Request) {
     const wrappedOpenAI = wrapModelWithTinybird(
       openai('gpt-3.5-turbo'),
       process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
-      process.env.TINYBIRD_JWT_SECRET!,
+      process.env.TINYBIRD_EVENTS_TOKEN,
       {
         event: 'ai_cost_calculator',
         environment: process.env.NODE_ENV,
@@ -145,8 +155,9 @@ export async function POST(req: Request) {
 
 // Fetch the llm_usage pipe definition
 const fetchPipeDefinition = async (token: string | null, apiUrl: string | null) => {
-  const TINYBIRD_API_URL = apiUrl || 'http://localhost:7181';
-  const TINYBIRD_API_KEY = token || process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
+  // The server token only goes to the server URL. A caller-supplied URL needs the caller's own token.
+  const TINYBIRD_API_URL = apiUrl || process.env.NEXT_PUBLIC_TINYBIRD_API_URL || 'http://localhost:7181';
+  const TINYBIRD_API_KEY = apiUrl ? token : (token || process.env.NEXT_PUBLIC_TINYBIRD_API_KEY);
   
   if (!TINYBIRD_API_KEY) {
     console.error('No Tinybird API key available');
